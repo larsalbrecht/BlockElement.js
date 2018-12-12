@@ -1,0 +1,20 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": {
+        "browsers": [
+          "> 1%",
+          "last 2 versions",
+          "not ie <= 10"
+        ]
+      }
+    }]
+  ],
+  "plugins": ["transform-es2015-modules-commonjs"],
+  "env": {
+    "test": {
+      "presets": ["@babel/preset-env"],
+      "plugins": ["transform-es2015-modules-commonjs"]
+    }
+  }
+}
