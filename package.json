@@ -1,8 +1,8 @@
 {
   "name": "@lars.albrecht/block-element",
-  "description": "Block an HTMLElement",
-  "version": "1.0.0",
-  "main": "lib/BlockElement.js",
+  "description": "Block an HTMLElement with a simple overlay.",
+  "version": "1.1.0",
+  "main": "lib/BlockElement.web.min.js",
   "keywords": [
     "html",
     "htmlelement",
@@ -27,12 +27,17 @@
       "url": "https://opensource.org/licenses/MIT"
     }
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/larsalbrecht/BlockElement.js"
+  },
   "scripts": {
-    "watch": "webpack --watch",
-    "build": "webpack --config webpack.config.js",
-    "dev": "...",
+    "watch": "webpack --config build/webpack.dev.conf.js --watch",
+    "build": "webpack --config build/webpack.prod.conf.js",
+    "dev": "webpack --config build/webpack.dev.conf.js",
     "test": "jest --config jest.config.js",
-    "lint": "eslint --ext .js src test"
+    "lint": "eslint --ext .js src test",
+    "check": "npm run lint && npm run test"
   },
   "devDependencies": {
     "@babel/core": "^7.2.0",
@@ -41,13 +46,16 @@
     "babel-jest": "^23.6.0",
     "babel-loader": "^8.0.4",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "clean-webpack-plugin": "^1.0.0",
     "eslint": "^5.10.0",
     "eslint-loader": "^2.1.1",
+    "html-webpack-plugin": "^3.2.0",
     "jest": "^23.6.0",
     "jest-dom": "^3.0.0",
     "mutationobserver-shim": "^0.3.2",
     "webpack": "^4.27.1",
     "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.10"
+    "webpack-dev-server": "^3.1.10",
+    "webpack-merge": "^4.1.5"
   }
 }

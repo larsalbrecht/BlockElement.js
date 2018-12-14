@@ -1,7 +1,7 @@
 'use strict'
 
 const Blocker = require('../src/Blocker')
-const Message = require('../src/Message')
+const Message = require('../src/decorators/Message')
 
 require('mutationobserver-shim')
 global.MutationObserver = window.MutationObserver

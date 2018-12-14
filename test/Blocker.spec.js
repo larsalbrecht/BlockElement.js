@@ -9,6 +9,7 @@ describe('Blocker.js', () => {
   afterEach(() => {
     document.body.innerHTML = ''
     Blocker._decorators = null
+    Blocker._rootNode = null
   })
 
   it('Create new node on block()', () => {
@@ -126,14 +127,17 @@ describe('Blocker.js', () => {
       '</div>'
 
     return Blocker.block(document.getElementById('itemToBlock')).
-      then((blockerElement) => {
+      then(() => {
+        const timeout = 500
+
         document.getElementById('itemToBlock').
           remove()
+
         setTimeout(() => {
           expect(document.querySelector('.blocker')).
             toBe(null)
           done()
-        }, 500)
+        }, timeout)
       })
   })
 
@@ -144,15 +148,18 @@ describe('Blocker.js', () => {
       '</div>'
 
     return Blocker.block(document.getElementById('root')).
-      then((blockerElement) => {
+      then(() => {
+        const timeout = 500
+
         document.getElementById('itemToBlock').
           remove()
+
         setTimeout(() => {
           expect(document.querySelector('.blocker')).
             not.
             toBe(null)
           done()
-        }, 500)
+        }, timeout)
       })
   })
 
@@ -170,17 +177,17 @@ describe('Blocker.js', () => {
   })
 
   it('Adds decorator to Blocker._decorators when call static Blocker.with([]) with valid decorator', () => {
-    let decoratorMock = {
-      when: jest.fn(() => {
-        return {
-          event: '',
-          callable: () => null
-        }
-      })
-    }
-
     const decorator = {
-      decorator: decoratorMock
+      decorator: {
+        when: jest.fn(() => {
+          return {
+            callable: () => {
+              return null
+            },
+            event: ''
+          }
+        })
+      }
     }
 
     Blocker.with([decorator])
@@ -190,17 +197,17 @@ describe('Blocker.js', () => {
   })
 
   it('Adds two decorator to Blocker._decorators when call static Blocker.with([]) with two valid decorator', () => {
-    let decoratorMock = {
-      when: jest.fn(() => {
-        return {
-          event: '',
-          callable: () => null
-        }
-      })
-    }
-
     const decorator = {
-      decorator: decoratorMock
+      decorator: {
+        when: jest.fn(() => {
+          return {
+            callable: () => {
+              return null
+            },
+            event: ''
+          }
+        })
+      }
     }
 
     Blocker.with([
@@ -218,14 +225,16 @@ describe('Blocker.js', () => {
   })
 
   it('Adds no decorator to Blocker._decorators when call static Blocker.with([]) with invalid decorator (missing event in decorator.when() result)', () => {
-    let decoratorMock = {
-      when: jest.fn(() => {
-        return {}
-      })
-    }
-
     const decorator = {
-      decorator: decoratorMock
+      decorator: {
+        when: jest.fn(() => {
+          return {
+            callable: () => {
+              return {}
+            }
+          }
+        })
+      }
     }
 
     Blocker.with([decorator])
@@ -235,10 +244,8 @@ describe('Blocker.js', () => {
   })
 
   it('Adds no decorator to Blocker._decorators when call static Blocker.with([]) with invalid decorator (missing function decorator.when())', () => {
-    let decoratorMock = {}
-
     const decorator = {
-      decorator: decoratorMock
+      decorator: {}
     }
 
     Blocker.with([decorator])
@@ -265,14 +272,18 @@ describe('Blocker.js', () => {
   })
 
   it('Returns given input (and do not call other decorators) as is with no passing decorators set when calling Blocker._hook', () => {
-    const spy = jest.fn(() => {})
+    const notPassingSpyCallTimes = 0
+
+    const notPassingSpy = jest.fn((input) => {
+      return input
+    })
 
     const decorator = {
       decorator: {
         when: jest.fn(() => {
           return {
-            event: 'foobar',
-            callable: spy
+            callable: notPassingSpy,
+            event: 'foobar'
           }
         })
       }
@@ -284,31 +295,37 @@ describe('Blocker.js', () => {
       toEqual({'foobar': [decorator]})
     expect(Blocker._hook('', '')).
       toEqual('')
-    expect(spy).
-      toHaveBeenCalledTimes(0)
+    expect(notPassingSpy).
+      toHaveBeenCalledTimes(notPassingSpyCallTimes)
   })
 
   it('Returns changed input (and call only the passing decorators) passing (and no passing) decorators set when calling Blocker._hook', () => {
-    const notPassingSpy = jest.fn(() => {return ''})
-    const passingSpy = jest.fn(() => {return 'foobar'})
+    const passingSpyCallTimes = 1
+    const notPassingSpyCallTimes = 0
+
+    const notPassingSpy = jest.fn(() => {
+      return ''
+    })
+    const passingSpy = jest.fn(() => {
+      return 'foobar'
+    })
 
     const notPassingDecorator = {
       decorator: {
         when: jest.fn(() => {
           return {
-            event: 'foobar',
-            callable: notPassingSpy
+            callable: notPassingSpy,
+            event: 'foobar'
           }
         })
       }
     }
-
     const passingDecorator = {
       decorator: {
         when: jest.fn(() => {
           return {
-            event: '',
-            callable: passingSpy
+            callable: passingSpy,
+            event: ''
           }
         })
       }
@@ -327,11 +344,68 @@ describe('Blocker.js', () => {
     expect(Blocker._hook('', '')).
       toEqual('foobar')
     expect(passingSpy).
-      toHaveBeenCalledTimes(1)
+      toHaveBeenCalledTimes(passingSpyCallTimes)
     expect(notPassingSpy).
-      toHaveBeenCalledTimes(0)
+      toHaveBeenCalledTimes(notPassingSpyCallTimes)
 
   })
+
+  it('Will return Blocker when call static Blocker.onNode()', () => {
+    expect(Blocker.onNode()).
+      toEqual(Blocker)
+  })
+
+  it('Will instance Blocker._rootNode when call static Blocker.onNode(HTMLElement)', () => {
+    const node = document.createElement('div')
+
+    Blocker.onNode(node)
+
+    expect(Blocker._rootNode).
+      toEqual(node)
+  })
+
+  it('Will add blocker to given node when call static Blocker.onNode(HTMLElement) and then Blocker.block(HTMLElement)', () => {
+    const node = document.createElement('div')
+
+    node.innerHTML = '<div id="testNode"></div>'
+    Blocker.onNode(node)
+
+    Blocker.block(node.querySelector('#testNode')).
+      then((blockerElement) => {
+        expect(node.querySelector('.blocker')).
+          toEqual(blockerElement)
+      })
+  })
+
+  it('Will reset Blocker._rootNode when calling static Blocker.block(HTMLElement) with second argument true (default)', () => {
+    const node = document.createElement('div')
+
+    node.innerHTML = '<div id="testNode"></div>'
+    Blocker.onNode(node)
+
+    Blocker.block(node.querySelector('#testNode'), true).
+      then(() => {
+        expect(Blocker._rootNode).
+          not.
+          toEqual(node)
+      })
+  })
+
+  it('Will not reset Blocker._rootNode when calling static Blocker.block(HTMLElement) with second argument false', () => {
+    const node = document.createElement('div')
+
+    node.innerHTML = '<div id="testNode"></div>'
+    Blocker.onNode(node)
+
+    Blocker.block(node.querySelector('#testNode'), false).
+      then(() => {
+        expect(Blocker.hasOwnProperty('_rootNode')).
+          toBeTruthy()
+        expect(Blocker._rootNode).
+          toEqual(node)
+      })
+  })
+
 })
 
 

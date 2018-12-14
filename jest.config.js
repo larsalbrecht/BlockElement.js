@@ -21,7 +21,9 @@ module.exports = {
   collectCoverage: true,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
-  // collectCoverageFrom: null,
+  'collectCoverageFrom': [
+    'src/**/*.{js}'
+  ],
 
   // The directory where Jest should output its coverage files
   coverageDirectory: "coverage",
@@ -40,7 +42,14 @@ module.exports = {
   // ],
 
   // An object that configures minimum threshold enforcement for coverage results
-  // coverageThreshold: null,
+  'coverageThreshold': {
+    'global': {
+      'branches': 80,
+      'functions': 80,
+      'lines': 80,
+      'statements': -10
+    }
+  },
 
   // Make calling deprecated APIs throw helpful error messages
   // errorOnDeprecated: false,
@@ -63,12 +72,12 @@ module.exports = {
   // ],
 
   // An array of file extensions your modules use
-  // moduleFileExtensions: [
-  //   "js",
+  moduleFileExtensions: [
+    'js'
   //   "json",
   //   "jsx",
   //   "node"
-  // ],
+  ],
 
   // A map from regular expressions to module names that allow to stub out resources with a single module
   // moduleNameMapper: {},
@@ -92,16 +101,16 @@ module.exports = {
   // reporters: undefined,
 
   // Automatically reset mock state between every test
-  // resetMocks: false,
+  resetMocks: true,
 
   // Reset the module registry before running each individual test
-  // resetModules: false,
+  resetModules: true,
 
   // A path to a custom resolver
   // resolver: null,
 
   // Automatically restore mock state between every test
-  // restoreMocks: false,
+  restoreMocks: true
 
   // The root directory that Jest should scan for tests and modules within
   // rootDir: null,

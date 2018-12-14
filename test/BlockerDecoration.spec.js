@@ -1,11 +1,13 @@
 'use strict'
 
+const DelegatedBlockerDecoratorConstructor = require('./_DelegatedBlockerDecoratorConstructor')
+const DelegatedBlockerDecoratorFunctionWhen = require('./_DelegatedBlockerDecoratorFunctionWhen')
 const BlockerDecorator = require('../src/BlockerDecorator')
 
 describe('BlockerDecorator.js', () => {
   it('Throws Error on create new instance', () => {
-    function newInstance () {
-      new BlockerDecorator()
+    const newInstance = () => {
+      new BlockerDecorator() // eslint-disable-line no-new
     }
 
     expect(() => {
@@ -15,16 +17,8 @@ describe('BlockerDecorator.js', () => {
   })
 
   it('Throws no Error on create new instance with delegated class', () => {
-    {
-      class DelegatedBlockerDecorator extends BlockerDecorator {
-        constructor () {
-          super()
-        }
-      }
-    }
-
-    function newInstance () {
-      new DelegatedBlockerDecorator()
+    const newInstance = () => {
+      new DelegatedBlockerDecoratorConstructor() // eslint-disable-line no-new
     }
 
     expect(() => {
@@ -35,7 +29,7 @@ describe('BlockerDecorator.js', () => {
   })
 
   it('Throws Error when call static BlockerDecorator.when()', () => {
-    function callStaticWhen () {
+    const callStaticWhen = () => {
       BlockerDecorator.when()
     }
 
@@ -46,15 +40,8 @@ describe('BlockerDecorator.js', () => {
   })
 
   it('Throws no Error when call static BlockerDecorator on delegated class', () => {
-    {
-      class DelegatedBlockerDecorator extends BlockerDecorator {
-        static when () {
-        }
-      }
-    }
-    
-    function callStaticWhen () {
-      DelegatedBlockerDecorator.when()
+    const callStaticWhen = () => {
+      DelegatedBlockerDecoratorFunctionWhen.when()
     }
 
     expect(() => {

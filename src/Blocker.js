@@ -5,9 +5,11 @@ module.exports = class Blocker {
   /**
    *
    * @param elem {HTMLElement}
+   * @param resetRootNode {boolean}
+   *
    * @returns {Promise<any>}
    */
-  static block (elem) {
+  static block (elem, resetRootNode = true) {
     return new Promise((resolve, reject) => {
       if (!elem) {
         // no elem given
@@ -21,14 +23,14 @@ module.exports = class Blocker {
 
       const originHeight = elem.offsetHeight
       const originWidth = elem.offsetWidth
-      const originPositionTop = window.scrollY + elem.getBoundingClientRect().top
-      const originPositionLeft = window.scrollX + elem.getBoundingClientRect().left
+      const originPositionTop = window.pageYOffset + elem.getBoundingClientRect().top
+      const originPositionLeft = window.pageXOffset + elem.getBoundingClientRect().left
 
       const blockerContainer = document.createElement('div')
 
       const observer = new MutationObserver((mutationsList, observer) => {
         mutationsList.forEach((mutationRecord) => {
-          mutationRecord.removedNodes.forEach((node) => {
+          [...mutationRecord.removedNodes].forEach((node) => {
             if (node === elem) {
               observer.disconnect()
               blockerContainer.remove()
@@ -59,12 +61,22 @@ module.exports = class Blocker {
       // save reference in origin
       elem.blockNodeWith = blockerContainer
 
-      document.body = Blocker._hook('DOCUMENT_BODY_BEFORE_APPEND', document.body)
-      document.body.appendChild(blockerContainer)
-      document.body = Blocker._hook('DOCUMENT_BODY_AFTER_APPEND', document.body)
+      let rootNode = document.body
+
+      if (Blocker._rootNode instanceof HTMLElement) {
+        rootNode = Blocker._rootNode
+      }
+
+      rootNode = Blocker._hook('DOCUMENT_BODY_BEFORE_APPEND', rootNode)
+      rootNode.appendChild(blockerContainer)
+      rootNode = Blocker._hook('DOCUMENT_BODY_AFTER_APPEND', rootNode)
 
       // reset decorators
       Blocker._decorators = {}
+
+      if (true === resetRootNode) {
+        Blocker._rootNode = null
+      }
 
       resolve(blockerContainer)
     })
@@ -90,12 +102,28 @@ module.exports = class Blocker {
         hasOwnProperty('event') && decorator.decorator.when().
         hasOwnProperty('callable')) {
         const eventName = decorator.decorator.when().event
+
         if (!Blocker._decorators.hasOwnProperty(eventName)) {
           Blocker._decorators[eventName] = []
         }
         Blocker._decorators[eventName].push(decorator)
       }
     })
+
+    return Blocker
+  }
+
+  /**
+   * Set an alternative document root. Default is document.body
+   * @param rootNode {HTMLElement}
+   *
+   * @returns {module.Blocker}
+   */
+  static onNode (rootNode) {
+    if (!rootNode || !(rootNode instanceof HTMLElement)) {
+      return Blocker
+    }
+    Blocker._rootNode = rootNode
 
     return Blocker
   }
@@ -128,12 +156,14 @@ module.exports = class Blocker {
       if (!elem) {
         // no elem given
         reject('Invalid element')
+
         return
       }
 
       if (!elem.hasOwnProperty('blockNodeWith') || !elem.blockNodeWith || !elem.blockNodeWith.hasOwnProperty('blockObserver')) {
         // nothing to unblock
         reject('Nothing to unblock')
+
         return
       }
 

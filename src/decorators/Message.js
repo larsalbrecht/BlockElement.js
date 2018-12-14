@@ -1,6 +1,6 @@
 'use strict'
 
-const BlockerDecorator = require('./BlockerDecorator')
+const BlockerDecorator = require('./../BlockerDecorator')
 
 module.exports = class Message extends BlockerDecorator {
 
@@ -9,9 +9,10 @@ module.exports = class Message extends BlockerDecorator {
    * @returns {{callable: (function(HTMLElement, JSON): HTMLElement), event: string}}
    */
   static when () {
+
     return {
-      event: 'BLOCKER_INNER_HTML_AFTER_OVERLAY',
-      callable: Message.onAfterOverlay
+      callable: Message.onAfterOverlay,
+      event: 'BLOCKER_INNER_HTML_AFTER_OVERLAY'
     }
   }
 
