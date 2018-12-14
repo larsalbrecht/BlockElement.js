@@ -44,7 +44,7 @@ BlockElement.Blocker.block(document.getElementById('myElem'))
 
 #### Block an element that is not in document
 
-You can create a new element and use this as root for your blocker. The blocker will then be added to the given element instead of ```document.body````.
+You can create a new element and use this as root for your blocker. The blocker will then be added to the given element instead of ```document.body```.
 ```javascript
 const myNode = document.createElement('div')
 BlockElement.Blocker.onNode('myNode').block(myNode.querySelector('#myElem'))
